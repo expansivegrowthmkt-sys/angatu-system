@@ -147,6 +147,12 @@
         $('ok-titulo').textContent = `Bem-vindo(a), ${nome}!`;
         $('ok-sub').textContent    = 'Seu check-in foi registrado com sucesso.';
         $('ok-badge').style.display = 'none';
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({
+          event:          'generate_lead',
+          checkin_tipo:   'novo',
+          origem_declarada: _origemSel || undefined,
+        });
         showTela('tela-ok');
       } else {
         setErr('erro-novo', data.error || 'Erro ao registrar. Tente novamente.');
@@ -185,6 +191,12 @@
         } else {
           badge.style.display = 'none';
         }
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({
+          event:         'checkin_recorrente',
+          checkin_tipo:  'recorrente',
+          total_visitas: data.totalVisitas,
+        });
         showTela('tela-ok');
       }
     } catch (err) {
