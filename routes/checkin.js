@@ -46,7 +46,13 @@ router.post('/novo', async (req, res) => {
   if (nome.length < 2) return res.status(400).json({ error: 'Nome muito curto.' });
 
   const email          = sanitize(req.body.email || '');
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
+    return res.status(400).json({ error: 'E-mail obrigatório.' });
+
   const dataNascimento = sanitize(req.body.dataNascimento || '');
+  if (!dataNascimento)
+    return res.status(400).json({ error: 'Data de nascimento obrigatória.' });
+
   const origemDeclarada = sanitize(req.body.origemDeclarada || '');
   const utmSource      = sanitize(req.body.utmSource || '');
   const utmCampaign    = sanitize(req.body.utmCampaign || '');

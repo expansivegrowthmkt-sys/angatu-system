@@ -111,10 +111,20 @@
     const email = $('input-email').value.trim();
     const nasc  = $('input-nasc').value;
     setErr('erro-nome', '');
+    setErr('erro-email', '');
+    setErr('erro-nasc', '');
     setErr('erro-novo', '');
 
     if (nome.length < 2) {
       setErr('erro-nome', 'Informe seu nome completo.');
+      return;
+    }
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setErr('erro-email', 'Informe um e-mail válido.');
+      return;
+    }
+    if (!nasc) {
+      setErr('erro-nasc', 'Informe sua data de nascimento.');
       return;
     }
 
