@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Check-in — Angatu Restaurante</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app-wrap">
+
+  <header class="app-header">
+    <div class="brand">🌿 Angatu Restaurante</div>
+  </header>
+
+  <!-- ESTADO 1: TELEFONE -->
+  <section class="tela ativa" id="tela-telefone">
+    <div class="card">
+      <h1 class="titulo">Bem-vindo(a)!</h1>
+      <p class="subtitulo">Digite seu WhatsApp para fazer o check-in</p>
+      <div class="campo-grupo">
+        <label for="input-tel">Seu WhatsApp</label>
+        <input id="input-tel" type="tel" placeholder="(11) 99999-9999" maxlength="15" inputmode="numeric" autocomplete="tel">
+        <span class="campo-erro" id="erro-tel"></span>
+      </div>
+      <button class="btn-primario" id="btn-buscar">Continuar →</button>
+    </div>
+  </section>
+
+  <!-- ESTADO 2a: NOVO CLIENTE -->
+  <section class="tela" id="tela-novo">
+    <div class="card">
+      <div class="badge-novo">✨ Primeiro acesso</div>
+      <h2 class="titulo">Prazer em te conhecer!</h2>
+      <p class="subtitulo">Preencha seus dados para continuar</p>
+
+      <div class="campo-grupo">
+        <label for="input-nome">Seu nome <span class="obrig">*</span></label>
+        <input id="input-nome" type="text" placeholder="Como quer ser chamado(a)?" autocomplete="given-name">
+        <span class="campo-erro" id="erro-nome"></span>
+      </div>
+      <div class="campo-grupo">
+        <label for="input-email">E-mail <span class="opcional">(opcional)</span></label>
+        <input id="input-email" type="email" placeholder="seuemail@exemplo.com" autocomplete="email">
+      </div>
+      <div class="campo-grupo">
+        <label for="input-nasc">Aniversário <span class="opcional">(opcional)</span></label>
+        <input id="input-nasc" type="date" autocomplete="bday">
+      </div>
+
+      <div class="campo-grupo">
+        <label>Como nos conheceu?</label>
+        <div class="origem-grid" id="origem-grid">
+          <button class="origem-btn" data-origem="Instagram">📸 Instagram</button>
+          <button class="origem-btn" data-origem="Google">🔍 Google</button>
+          <button class="origem-btn" data-origem="Indicação">🤝 Indicação</button>
+          <button class="origem-btn" data-origem="Passando na rua">🚶 Passando na rua</button>
+          <button class="origem-btn" data-origem="WhatsApp">💬 WhatsApp</button>
+          <button class="origem-btn" data-origem="Outro">✨ Outro</button>
+        </div>
+      </div>
+
+      <button class="btn-primario" id="btn-novo">Fazer check-in 🍽️</button>
+      <span class="campo-erro" id="erro-novo"></span>
+    </div>
+  </section>
+
+  <!-- ESTADO 2b: RECORRENTE -->
+  <section class="tela" id="tela-recorrente">
+    <div class="card">
+      <div class="avatar-grande" id="rec-avatar">😊</div>
+      <h2 class="titulo" id="rec-nome">Olá!</h2>
+      <p class="subtitulo" id="rec-visitas">Que bom te ver novamente</p>
+      <p class="pergunta">É você mesmo(a)?</p>
+      <button class="btn-primario btn-confirmar" id="btn-recorrente">Sim, sou eu! ✓</button>
+      <button class="btn-link" id="btn-nao-sou">Não sou eu</button>
+    </div>
+  </section>
+
+  <!-- ESTADO 3: CONFIRMAÇÃO -->
+  <section class="tela" id="tela-ok">
+    <div class="card card-confirmacao">
+      <div class="icone-ok">🎉</div>
+      <h2 class="titulo" id="ok-titulo">Check-in realizado!</h2>
+      <p class="subtitulo" id="ok-sub"></p>
+      <div class="badge-fidelidade" id="ok-badge" style="display:none"></div>
+      <p class="msg-final">Bom almoço! Aproveite cada prato. 🌿</p>
+    </div>
+  </section>
+
+  <!-- LOADING -->
+  <div class="overlay-loading" id="loading" style="display:none">
+    <div class="spinner"></div>
+  </div>
+
+</div>
+<script src="app.js"></script>
+</body>
+</html>
