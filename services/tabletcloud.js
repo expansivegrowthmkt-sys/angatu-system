@@ -33,19 +33,30 @@ async function authenticate() {
   if (_token && Date.now() < _tokenExp) return _token;
 
   log('info', 'Autenticando no Tablet Cloud');
-  const data = await fetchTC('/api/Autenticacao/token', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      login:          process.env.TABLETCLOUD_LOGIN,
-      senha:          process.env.TABLETCLOUD_SENHA,
-      cod_empresa:    process.env.TABLETCLOUD_COD_EMPRESA,
-      senha_empresa:  process.env.TABLETCLOUD_SENHA_EMPRESA,
-    }),
+
+  // Auth via OAuth form-encoded — mesmo formato do cliente.html confirmado
+  const params = new URLSearchParams({
+    username:      process.env.TABLETCLOUD_USERNAME,
+    password:      process.env.TABLETCLOUD_PASSWORD,
+    grant_type:    'password',
+    client_id:     process.env.TABLETCLOUD_CLIENT_ID,
+    client_secret: process.env.TABLETCLOUD_CLIENT_SECRET,
   });
 
-  _token    = data.token || data.Token || data.access_token;
-  _tokenExp = Date.now() + 55 * 60 * 1000;
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), TIMEOUT);
+  const res = await fetch(`${BASE}/token`, {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body:    params.toString(),
+    signal:  controller.signal,
+  });
+  clearTimeout(timer);
+  if (!res.ok) throw new Error(`Auth HTTP ${res.status}`);
+  const data = await res.json();
+
+  _token    = data.access_token;
+  _tokenExp = Date.now() + (data.expires_in - 60) * 1000;
   log('info', 'Token obtido');
   return _token;
 }

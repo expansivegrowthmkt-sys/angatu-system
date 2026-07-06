@@ -1,0 +1,42 @@
+version: "3.8"
+
+services:
+  app:
+    image: node:20-alpine
+    working_dir: /app
+    command: sh -c "npm install --production && node server.js"
+    volumes:
+      - /opt/angatu:/app
+      - /opt/angatu/database:/app/database
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - BASE_URL=https://checkin.inframb4.com
+      - TABLETCLOUD_BASE_URL=https://api.tabletcloud.com.br
+      - TABLETCLOUD_USERNAME=${TABLETCLOUD_USERNAME}
+      - TABLETCLOUD_PASSWORD=${TABLETCLOUD_PASSWORD}
+      - TABLETCLOUD_CLIENT_ID=${TABLETCLOUD_CLIENT_ID}
+      - TABLETCLOUD_CLIENT_SECRET=${TABLETCLOUD_CLIENT_SECRET}
+      - N8N_WEBHOOK_CHECKIN=${N8N_WEBHOOK_CHECKIN}
+      - N8N_WEBHOOK_SECRET=${N8N_WEBHOOK_SECRET}
+      - DB_PATH=/app/database/angatu.db
+      - RATE_LIMIT_WINDOW_MS=60000
+      - RATE_LIMIT_MAX=30
+      - ALLOWED_ORIGINS=https://checkin.inframb4.com
+    networks:
+      - traefik-public
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.angatu.rule=Host(`checkin.inframb4.com`)"
+        - "traefik.http.routers.angatu.entrypoints=websecure"
+        - "traefik.http.routers.angatu.tls=true"
+        - "traefik.http.routers.angatu.tls.certresolver=letsencrypt"
+        - "traefik.http.services.angatu.loadbalancer.server.port=3000"
+
+networks:
+  traefik-public:
+    external: true
