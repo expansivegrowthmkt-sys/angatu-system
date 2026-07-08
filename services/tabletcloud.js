@@ -107,28 +107,30 @@ async function findClientByPhone(phone) {
 async function createClient({ nome, telefone, email, dataNascimento, origemCampanha }) {
   return withRetry(async () => {
     const headers = await authHeaders();
-    const data = await fetchTC('/api/cliente/save', {
+    const fone = telefone.replace(/\D/g, '');
+    const data = await fetchTC('/cliente/save', {
       method:  'POST',
       headers,
       body: JSON.stringify({
-        Nome:          nome,
-        Telefone:      telefone.replace(/\D/g, ''),
-        Email:         email || '',
-        DataNascimento: dataNascimento || null,
-        Observacao:    origemCampanha || '',
+        codigo:       0,
+        nomeFantasia: nome,
+        celular:      fone,
+        telefone:     fone,
+        email:        email || '',
+        observacao:   origemCampanha || '',
       }),
     });
-    return { Id: data.Id || data.id, success: true };
+    return { Id: data.codigo || data.Codigo || data.id, success: true };
   });
 }
 
 async function updateClientVisit(clienteId, novaVisita) {
   return withRetry(async () => {
     const headers = await authHeaders();
-    await fetchTC('/api/cliente/update', {
+    await fetchTC('/cliente/update', {
       method:  'PUT',
       headers,
-      body: JSON.stringify({ Id: clienteId, TotalCompras: novaVisita }),
+      body: JSON.stringify({ codigo: clienteId, observacao: `Visitas: ${novaVisita}` }),
     });
     return { success: true };
   });
