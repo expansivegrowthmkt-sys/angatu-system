@@ -36,9 +36,18 @@ async function sendLead({ nome, telefone, email }) {
     });
     clearTimeout(timer);
 
+    const text = await res.text();
+
     if (!res.ok) {
-      const text = await res.text();
       log('warn', `Reportana HTTP ${res.status}`, { body: text.slice(0, 300) });
+      return false;
+    }
+
+    let parsed = {};
+    try { parsed = JSON.parse(text); } catch (_) {}
+
+    if (parsed.success === false) {
+      log('warn', 'Reportana rejeitou lead', { msg: parsed.message, telefone });
       return false;
     }
 
