@@ -1,7 +1,7 @@
-const express = require('express');
-const router  = express.Router();
-const tc      = require('../services/tabletcloud');
-const n8n     = require('../services/n8n');
+const express   = require('express');
+const router    = express.Router();
+const tc        = require('../services/tabletcloud');
+const reportana = require('../services/reportana');
 const { salvarCheckin, buscarClientePorTelefone } = require('../database/db');
 const { checkinLimiter } = require('../middleware/rateLimit');
 
@@ -68,16 +68,14 @@ router.post('/novo', async (req, res) => {
   }
 
   const dbPayload = {
-    clienteId, telefone: phone, nome, tipo: 'novo',
+    clienteId, telefone: phone, nome, email, tipo: 'novo',
     utmSource, utmCampaign, origemDeclarada, totalVisitas: 1,
     sucessoTabletcloud: sucessoTC, sucessoN8n: false,
   };
 
   salvarCheckin(dbPayload);
 
-  const n8nOk = await n8n.sendCheckin({
-    ...dbPayload, clienteId, email, totalVisitas: 1,
-  });
+  reportana.sendLead({ nome, telefone: phone, email }).catch(() => {});
 
   return res.json({
     success:  true,
@@ -118,7 +116,11 @@ router.post('/recorrente', async (req, res) => {
 
   salvarCheckin(dbPayload);
 
-  await n8n.sendCheckin(dbPayload);
+  reportana.sendLead({
+    nome:     clienteLocal?.nome    || null,
+    email:    clienteLocal?.email   || null,
+    telefone: phone,
+  }).catch(() => {});
 
   return res.json({
     success:      true,

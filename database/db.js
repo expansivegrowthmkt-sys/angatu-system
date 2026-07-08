@@ -18,6 +18,7 @@ db.exec(`
     cliente_id      TEXT,
     telefone        TEXT NOT NULL,
     nome            TEXT,
+    email           TEXT,
     tipo            TEXT CHECK(tipo IN ('novo','recorrente')),
     utm_source      TEXT,
     utm_campaign    TEXT,
@@ -33,19 +34,23 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_utm_source ON checkins(utm_source);
 `);
 
+// Migração: adiciona email se tabela já existia sem essa coluna
+try { db.exec('ALTER TABLE checkins ADD COLUMN email TEXT;'); } catch (_) {}
+
 function salvarCheckin(dados) {
   const stmt = db.prepare(`
     INSERT INTO checkins
-      (cliente_id, telefone, nome, tipo, utm_source, utm_campaign,
+      (cliente_id, telefone, nome, email, tipo, utm_source, utm_campaign,
        origem_declarada, total_visitas, sucesso_tabletcloud, sucesso_n8n)
     VALUES
-      (@cliente_id, @telefone, @nome, @tipo, @utm_source, @utm_campaign,
+      (@cliente_id, @telefone, @nome, @email, @tipo, @utm_source, @utm_campaign,
        @origem_declarada, @total_visitas, @sucesso_tabletcloud, @sucesso_n8n)
   `);
   const info = stmt.run({
     cliente_id:       dados.clienteId || null,
     telefone:         dados.telefone,
     nome:             dados.nome || null,
+    email:            dados.email || null,
     tipo:             dados.tipo,
     utm_source:       dados.utmSource || null,
     utm_campaign:     dados.utmCampaign || null,
@@ -59,13 +64,13 @@ function salvarCheckin(dados) {
 
 function buscarClientePorTelefone(telefone) {
   const row = db.prepare(
-    `SELECT cliente_id, nome FROM checkins WHERE telefone = ? AND tipo = 'novo' ORDER BY id ASC LIMIT 1`
+    `SELECT cliente_id, nome, email FROM checkins WHERE telefone = ? AND tipo = 'novo' ORDER BY id ASC LIMIT 1`
   ).get(telefone);
   if (!row) return null;
   const { total } = db.prepare(
     `SELECT COUNT(*) as total FROM checkins WHERE telefone = ?`
   ).get(telefone);
-  return { clienteId: row.cliente_id, nome: row.nome, totalVisitas: total };
+  return { clienteId: row.cliente_id, nome: row.nome, email: row.email, totalVisitas: total };
 }
 
 module.exports = { db, salvarCheckin, buscarClientePorTelefone };
