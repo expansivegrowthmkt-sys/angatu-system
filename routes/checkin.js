@@ -2,7 +2,7 @@ const express = require('express');
 const router  = express.Router();
 const tc      = require('../services/tabletcloud');
 const n8n     = require('../services/n8n');
-const { salvarCheckin } = require('../database/db');
+const { salvarCheckin, buscarClientePorTelefone } = require('../database/db');
 const { checkinLimiter } = require('../middleware/rateLimit');
 
 router.use(checkinLimiter);
@@ -18,23 +18,19 @@ function validatePhone(phone) {
 }
 
 // POST /api/checkin/buscar
-router.post('/buscar', async (req, res) => {
+router.post('/buscar', (req, res) => {
   const phone = validatePhone(req.body.telefone);
   if (!phone) return res.status(400).json({ error: 'Telefone inválido.' });
 
-  try {
-    const result = await tc.findClientByPhone(phone);
-    if (!result.encontrado) return res.json({ encontrado: false });
-    return res.json({
-      encontrado:   true,
-      nome:         result.cliente.Nome,
-      totalVisitas: result.cliente.TotalCompras,
-      clienteId:    result.cliente.Id,
-    });
-  } catch (err) {
-    console.error('buscar:', err.message);
-    return res.status(500).json({ error: 'Erro ao buscar cliente. Tente novamente.' });
-  }
+  const cliente = buscarClientePorTelefone(phone);
+  if (!cliente) return res.json({ encontrado: false });
+
+  return res.json({
+    encontrado:   true,
+    nome:         cliente.nome,
+    totalVisitas: cliente.totalVisitas,
+    clienteId:    cliente.clienteId,
+  });
 });
 
 // POST /api/checkin/novo

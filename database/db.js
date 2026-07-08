@@ -57,7 +57,18 @@ function salvarCheckin(dados) {
   return info.lastInsertRowid;
 }
 
-module.exports = { db, salvarCheckin };
+function buscarClientePorTelefone(telefone) {
+  const row = db.prepare(
+    `SELECT cliente_id, nome FROM checkins WHERE telefone = ? AND tipo = 'novo' ORDER BY id ASC LIMIT 1`
+  ).get(telefone);
+  if (!row) return null;
+  const { total } = db.prepare(
+    `SELECT COUNT(*) as total FROM checkins WHERE telefone = ?`
+  ).get(telefone);
+  return { clienteId: row.cliente_id, nome: row.nome, totalVisitas: total };
+}
+
+module.exports = { db, salvarCheckin, buscarClientePorTelefone };
 
 if (require.main === module) {
   console.log('Banco inicializado em:', path.resolve(DB_PATH));
