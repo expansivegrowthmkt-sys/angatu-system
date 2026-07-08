@@ -116,11 +116,7 @@ router.post('/recorrente', async (req, res) => {
 
   salvarCheckin(dbPayload);
 
-  reportana.sendLead({
-    nome:     clienteLocal?.nome    || null,
-    email:    clienteLocal?.email   || null,
-    telefone: phone,
-  }).catch(() => {});
+  // Reportana NÃO é chamado no recorrente para não reacionar a automação de boas-vindas
 
   return res.json({
     success:      true,

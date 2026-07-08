@@ -130,6 +130,25 @@ html, body {
   font-style: italic;
 }
 
+.btn-instagram {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 20px;
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 50px;
+  text-decoration: none;
+  letter-spacing: .3px;
+  transition: opacity .2s, transform .15s;
+  box-shadow: 0 4px 16px rgba(253,29,29,.3);
+}
+.btn-instagram:hover { opacity: .9; transform: translateY(-1px); }
+.btn-instagram svg { width: 18px; height: 18px; flex-shrink: 0; }
+
 /* CAMPOS */
 .campo-grupo {
   display: flex;
