@@ -89,22 +89,25 @@ router.post('/novo', async (req, res) => {
 // POST /api/checkin/recorrente
 router.post('/recorrente', async (req, res) => {
   const phone     = validatePhone(req.body.telefone);
-  const clienteId = sanitize(req.body.clienteId || '');
-  if (!phone || !clienteId) return res.status(400).json({ error: 'Dados inválidos.' });
+  if (!phone) return res.status(400).json({ error: 'Telefone inválido.' });
 
+  const clienteId   = sanitize(req.body.clienteId || '') || null;
   const utmSource   = sanitize(req.body.utmSource  || '');
   const utmCampaign = sanitize(req.body.utmCampaign || '');
 
-  let totalVisitas  = 1;
-  let sucessoTC     = false;
+  // Conta visitas pelo SQLite (fonte confiável independente do Tablet Cloud)
+  const clienteLocal = buscarClientePorTelefone(phone);
+  const totalVisitas = (clienteLocal?.totalVisitas || 0) + 1;
 
-  try {
-    const visitas = await tc.getClientVisits(clienteId);
-    totalVisitas = (visitas.length || 0) + 1;
-    await tc.updateClientVisit(clienteId, totalVisitas);
-    sucessoTC = true;
-  } catch (err) {
-    console.error('recorrente:', err.message);
+  let sucessoTC = false;
+
+  if (clienteId) {
+    try {
+      await tc.updateClientVisit(clienteId, totalVisitas);
+      sucessoTC = true;
+    } catch (err) {
+      console.error('recorrente TC:', err.message);
+    }
   }
 
   const dbPayload = {
